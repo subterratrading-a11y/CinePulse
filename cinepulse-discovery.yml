@@ -1,0 +1,31 @@
+name: CinePulse Discovery TEST
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 */2 * * *'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cinepulse-discovery-test
+  cancel-in-progress: false
+
+jobs:
+  discover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Firefox browser automation
+        run: |
+          python -m pip install -r requirements.txt
+          python -m playwright install --with-deps firefox
+      - name: Discover CineMagia trailers (dry-run)
+        env:
+          SEND_TO_APPS_SCRIPT: 'false'
+        run: python discover.py
